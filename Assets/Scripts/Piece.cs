@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = System.Random;
 
 public class Piece
 {
@@ -20,9 +21,12 @@ public class Piece
 
     private int _rotationIndex;
 
-    public Piece(TetroType type)
+    public Piece()
     {
-        type = TetroType.L;
+        Array values = Enum.GetValues(typeof(TetroType));
+        
+        type = (TetroType)values.GetValue(new Random().Next(values.Length));
+        
         _rotationIndex = 0;
 
         GeneratePiece();

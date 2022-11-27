@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using Random = System.Random;
 
 public class Board : MonoBehaviour
 {
@@ -24,7 +25,7 @@ public class Board : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        _piece = new Piece(Piece.TetroType.I);
+        _piece = new Piece();
 
         _piecePos = new Vector2Int(5, 16);
     }
@@ -71,12 +72,14 @@ public class Board : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.W))
         {
             _piece.Rotate();
+            if(CheckCollision(_piece)) _piece.Rotate(false);
         }
         
         //ROTATE LEFT
         if (Input.GetKeyDown(KeyCode.S))
         {
             _piece.Rotate(false);
+            if(CheckCollision(_piece)) _piece.Rotate();
         }
     }
 
@@ -115,7 +118,58 @@ public class Board : MonoBehaviour
 
     void TestLineClearing()
     {
+        List<int> linesClear = new();
+        int nbLineFull = 0;
+        int max_j = 0;
+        int min_j = 40;
         
+        for (int j = 0; j < Height; ++j)
+        {
+            bool fullLine = true;
+            for (int i = 0; i < Width; ++i)
+            {
+                if (!tilemap.HasTile(new Vector3Int(i, j)))
+                {
+                    fullLine = false;
+                    break;
+                }
+            }
+
+            if (fullLine)
+            {
+                nbLineFull++;
+                if (j > max_j) max_j = j;
+                if (j < min_j) min_j = j;
+                linesClear.Add(j);  
+            }
+            
+        }
+        
+        //Clear line full
+        foreach (int j in linesClear)
+        {
+            for (int i = 0; i < Width; ++i)
+            {
+                tilemap.SetTile(new Vector3Int(i, j), null);
+            }
+        }
+
+        if (linesClear.Count > 0)
+        {
+
+            //Descent the rest of block
+            for (int j = max_j + 1; j < Height; ++j)
+            {
+                for (int i = 0; i < Width; ++i)
+                {
+                    var tile = tilemap.GetTile(new Vector3Int(i, j));
+                    
+                    tilemap.SetTile(new Vector3Int(i, j - linesClear.Count), tile);
+
+                    tilemap.SetTile(new Vector3Int(i, j), null);
+                }
+            }
+        }
     }
     
     void CopyPieceOnBoard(Piece piece)
@@ -136,7 +190,7 @@ public class Board : MonoBehaviour
 
     void ResetPiece()
     {
-        _piece = new Piece(Piece.TetroType.L);
+        _piece = new Piece();
         _piecePos = new Vector2Int(5, 16);
         _prevPos = _piecePos;
         _timer = 0;
