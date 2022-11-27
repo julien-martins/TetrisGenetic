@@ -1,13 +1,13 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Piece : MonoBehaviour
+public class Piece
 {
-
-    enum TETRO_TYPE
+    public enum TetroType
     {
-        L,
+        L = 0,
         I,
         O,
         S,
@@ -16,28 +16,41 @@ public class Piece : MonoBehaviour
     }
 
     private int[,] tiles = new int[4, 4];
-    private TETRO_TYPE type;
-    
-    public Piece()
+    private TetroType type;
+
+    private int _rotationIndex;
+
+    public Piece(TetroType type)
     {
-        type = TETRO_TYPE.L;
-        generatePiece();
+        type = TetroType.L;
+        _rotationIndex = 0;
+
+        GeneratePiece();
     }
 
-    private void generatePiece()
+    private void GeneratePiece()
     {
-        switch (type)
+        for (int j = 0; j < 4; ++j)
         {
-            case TETRO_TYPE.L:
-                tiles[0, 0] = 0; tiles[1, 0] = 0; tiles[2, 0] = 0; tiles[3, 0] = 0;
-                tiles[0, 1] = 0; tiles[1, 1] = 0; tiles[2, 1] = 0; tiles[3, 1] = 0;
-                tiles[0, 2] = 0; tiles[1, 2] = 0; tiles[2, 2] = 0; tiles[3, 2] = 0;
-                tiles[0, 3] = 0; tiles[1, 3] = 0; tiles[2, 3] = 0; tiles[3, 3] = 0;
-                
-                break;
-            default:
-                break;
+            for (int i = 0; i < 4; ++i)
+            {
+                tiles[i, j] = Tetro_Data.T_Data[(int)type, _rotationIndex, i, j];
+            }
         }
     }
+
+    public void Rotate(bool clockwise = true)
+    {
+        var dir = (clockwise) ? 1 : -1;
+
+        _rotationIndex += dir;
+
+        if (_rotationIndex > 3) _rotationIndex = 0;
+        else if (_rotationIndex < 0) _rotationIndex = 3;
+
+        GeneratePiece();
+    }
     
+    public int[,] GetTiles() => tiles;
+
 }
