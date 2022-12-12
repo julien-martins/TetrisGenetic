@@ -19,10 +19,12 @@ public class Board : MonoBehaviour
     private Vector2Int _piecePos;
     private Piece _piece;
 
-    public float score;
+    public float score = 0.0f;
     
     private const float Delay = 0.25f;
-    private float _timer = 0.0f; 
+    private float _timer = 0.0f;
+
+    public bool canMove = true;
     
     // Start is called before the first frame update
     void Start()
@@ -85,8 +87,35 @@ public class Board : MonoBehaviour
         }
     }
 
+    //Use by the Tetris controller
+    public void Move(int dir)
+    {
+        switch (dir)
+        {
+            case 0:
+                _piecePos.x += 1;
+                if (CheckCollision(_piece)) _piecePos.x -= 1;
+                break;
+            case 1:
+                _piecePos.x -= 1;
+                if (CheckCollision(_piece)) _piecePos.x += 1;
+                break;
+            case 2:
+                _piece.Rotate();
+                if(CheckCollision(_piece)) _piece.Rotate(false);
+                break;
+            case 3:
+                _piece.Rotate(false);
+                if(CheckCollision(_piece)) _piece.Rotate();
+                break;
+            case 4:
+                _piecePos.y -= 1;
+                break;
+        }
+    }
     
-    bool CheckCollision(Piece piece)
+    
+    public bool CheckCollision(Piece piece)
     {
         for (int j = 0; j < 4; ++j)
         {
@@ -118,6 +147,30 @@ public class Board : MonoBehaviour
         return false;
     }
 
+    //Use by the genetic algorithm to find the best move possible
+    public bool CheckCollision(Vector2Int pos)
+    {
+        for (int j = 0; j < 4; ++j)
+        {
+            for (int i = 0; i < 4; ++i)
+            {
+                if (_piece.GetTiles()[i, j] != 1) continue;
+                
+                var newPos = pos + new Vector2Int(i, j);
+                
+                if (newPos.x < 0 || newPos.x > Width-1) return true;
+
+                if (newPos.y <= 0 || tilemap.HasTile(new Vector3Int(newPos.x, newPos.y - 1, 0)) )
+                {
+                    return true;
+                }
+                
+            }
+        }
+        
+        return false;
+    }
+    
     void TestLineClearing()
     {
         List<int> linesClear = new();
@@ -169,12 +222,13 @@ public class Board : MonoBehaviour
         }
     }
 
-    void ResetPiece()
+    public void ResetPiece()
     {
         _piece = new Piece();
         _piecePos = new Vector2Int(5, 16);
         _prevPos = _piecePos;
         _timer = 0;
+        canMove = true;
     }
 
     void ClearPiece(Vector2Int coord, Piece piece)
@@ -215,6 +269,9 @@ public class Board : MonoBehaviour
     {
         tilemap.SetTile(new Vector3Int(coord.x, coord.y, 0), tile);
     }
+
+    public Piece GetCurrentPiece() => _piece;
+    public Vector2Int GetCurrentPiecePos() => _piecePos;
     
     //All functions needs to the genetic algorithm to find the best move
     public List<int> ClearLines()
@@ -276,7 +333,7 @@ public class Board : MonoBehaviour
         
         return h;
     }
-    public int CalculateTerraiHeight()
+    public int CalculateTerrainHeight()
     {
         int bumpiness = 0;
         int prevHeight = -1;

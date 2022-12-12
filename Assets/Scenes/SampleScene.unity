@@ -510,6 +510,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5816638063746674a8b4264ac52a6dea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  initialPopulation: 85
+  mutationRate: 0.055
+  bestAgentSelection: 9
+  worstAgentSelection: 3
+  numberToCrossover: 0
+  currentGeneration: 0
+  currentGenome: 0
 --- !u!1 &1731569091
 GameObject:
   m_ObjectHideFlags: 0
@@ -665,6 +672,7 @@ GameObject:
   - component: {fileID: 1929418607}
   - component: {fileID: 1929418606}
   - component: {fileID: 1929418608}
+  - component: {fileID: 1929418609}
   m_Layer: 0
   m_Name: Grid
   m_TagString: Untagged
@@ -723,3 +731,17 @@ MonoBehaviour:
   - {fileID: 11400000, guid: c76ffb69f43371b4fb5119129f9c58c6, type: 2}
   tilemap: {fileID: 1731569094}
   pieceTilemap: {fileID: 193621592}
+  score: 0
+--- !u!114 &1929418609
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1929418605}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc8dde25fb7d0cf44bad8f57f4ccf63e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  board: {fileID: 1929418608}
