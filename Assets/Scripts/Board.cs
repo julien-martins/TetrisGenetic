@@ -19,6 +19,8 @@ public class Board : MonoBehaviour
     private Vector2Int _piecePos;
     private Piece _piece;
 
+    public float score;
+    
     private const float Delay = 0.25f;
     private float _timer = 0.0f; 
     
@@ -119,31 +121,10 @@ public class Board : MonoBehaviour
     void TestLineClearing()
     {
         List<int> linesClear = new();
-        int nbLineFull = 0;
         int max_j = 0;
         int min_j = 40;
         
-        for (int j = 0; j < Height; ++j)
-        {
-            bool fullLine = true;
-            for (int i = 0; i < Width; ++i)
-            {
-                if (!tilemap.HasTile(new Vector3Int(i, j)))
-                {
-                    fullLine = false;
-                    break;
-                }
-            }
-
-            if (fullLine)
-            {
-                nbLineFull++;
-                if (j > max_j) max_j = j;
-                if (j < min_j) min_j = j;
-                linesClear.Add(j);  
-            }
-            
-        }
+        
         
         //Clear line full
         foreach (int j in linesClear)
@@ -233,5 +214,81 @@ public class Board : MonoBehaviour
     void DrawTileOnBoard(Vector2Int coord, TileBase tile)
     {
         tilemap.SetTile(new Vector3Int(coord.x, coord.y, 0), tile);
+    }
+    
+    //All functions needs to the genetic algorithm to find the best move
+    public List<int> ClearLines()
+    {
+        List<int> linesClear = new();
+        int nbLineFull = 0;
+        int max_j = 0;
+        int min_j = 40;
+        
+        for (int j = 0; j < Height; ++j)
+        {
+            bool fullLine = true;
+            for (int i = 0; i < Width; ++i)
+            {
+                if (!tilemap.HasTile(new Vector3Int(i, j)))
+                {
+                    fullLine = false;
+                    break;
+                }
+            }
+
+            if (fullLine)
+            {
+                nbLineFull++;
+                if (j > max_j) max_j = j;
+                if (j < min_j) min_j = j;
+                linesClear.Add(j);  
+            }
+            
+        }
+
+        return linesClear;
+    }
+    public int CountHoles()
+    {
+        int holes = 0;
+        for(int i = 0; i < Height; i++) {
+            bool start_counting = false;
+            for(int j = 0; j < Width; j++) {
+                if(!tilemap.HasTile(new Vector3Int(i, j)) && !start_counting) {
+                    start_counting = true;
+                } else if(tilemap.HasTile(new Vector3Int(i, j)) && start_counting) {
+                    holes++;
+                }
+            }
+        }
+        return holes;
+    }
+
+    public int GetColHeight(int c)
+    {
+        int h = 0;
+
+        for (int i = 0; i < Width; ++i)
+        {
+            if (tilemap.HasTile(new Vector3Int(i, c))) h++;
+            else break;
+        }
+        
+        return h;
+    }
+    public int CalculateTerraiHeight()
+    {
+        int bumpiness = 0;
+        int prevHeight = -1;
+        for (int c = 0 ; c < Height ; c++) {
+            int h = GetColHeight(c);
+            if (prevHeight != -1) {
+                bumpiness += Math.Abs(h - prevHeight);
+            }
+      
+            prevHeight = h;
+        }
+      
+        return bumpiness;
     }
 }
