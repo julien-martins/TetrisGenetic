@@ -40,9 +40,9 @@ public class GeneticAlgorithm : MonoBehaviour
 
     void ResetToCurrentGenome()
     {
-        //Controller.ResetWithNetwork()
-        
-        
+        controller.ResetWithNetwork(population[currentGenome]);
+
+
     }
 
     void FillPopulationWithRandomValues(NeuralNetwork[] newPopulation, int startingIndex)
@@ -174,7 +174,7 @@ public class GeneticAlgorithm : MonoBehaviour
             int randomColumn = Random.Range(0, C.ColumnCount);
             int randomRow = Random.Range(0, C.RowCount);
 
-            C[randomPoints, randomColumn] = Mathf.Clamp(C[randomColumn, randomPoints] + Random.Range(-1, 1f), -1f, 1f);
+            C[randomRow, randomColumn] = Mathf.Clamp(C[randomRow, randomColumn] + Random.Range(-1, 1f), -1f, 1f);
         }
 
         return C;

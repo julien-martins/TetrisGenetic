@@ -35,8 +35,12 @@ public class Board : MonoBehaviour
         board._piece = _piece;
         board._piecePos = _piecePos;
 
-        board.tilemap = tilemap;
-        board.pieceTilemap = pieceTilemap;
+        board.tilemap = GameObject.Instantiate(tilemap);
+        board.tilemap.transform.parent = transform;
+        board.tilemap.gameObject.GetComponent<TilemapRenderer>().enabled = false;
+        board.pieceTilemap = GameObject.Instantiate(pieceTilemap);;
+        board.pieceTilemap.transform.parent = transform;
+        board.pieceTilemap.gameObject.GetComponent<TilemapRenderer>().enabled = false;
 
         board.tilesBase = tilesBase;
         
@@ -124,30 +128,30 @@ public class Board : MonoBehaviour
         {
             case 0:
                 _piecePos.x += 1;
-                if (CheckCollision(_piece)) _piecePos.x -= 1;
+                if (CheckCollision(_piece, false)) _piecePos.x -= 1;
                 break;
             case 1:
                 _piecePos.x -= 1;
-                if (CheckCollision(_piece)) _piecePos.x += 1;
+                if (CheckCollision(_piece, false)) _piecePos.x += 1;
                 break;
             case 2:
                 _piece.Rotate();
-                if(CheckCollision(_piece)) _piece.Rotate(false);
+                if(CheckCollision(_piece, false)) _piece.Rotate(false);
                 break;
             case 3:
                 _piece.Rotate(false);
-                if(CheckCollision(_piece)) _piece.Rotate();
+                if(CheckCollision(_piece, false)) _piece.Rotate();
                 break;
             case 4:
                 _piecePos.y -= 1;
-                if (CheckCollision(_piece)) _piecePos.y += 1;
+                if (CheckCollision(_piece, false)) _piecePos.y += 1;
                 break;
         }
         
     }
     
     
-    public bool CheckCollision(Piece piece)
+    public bool CheckCollision(Piece piece, bool testClearing = true)
     {
         for (int j = 0; j < 4; ++j)
         {
@@ -178,8 +182,9 @@ public class Board : MonoBehaviour
                     ClearPiece(_prevPos, piece);
                     ClearPiece(_piecePos, piece);
                     ResetPiece();
-
-                    TestLineClearing();
+                    
+                    if(testClearing)
+                        TestLineClearing();
                     
                     return true;
                 }
@@ -192,6 +197,7 @@ public class Board : MonoBehaviour
         return false;
     }
 
+    
     //Use by the genetic algorithm to find the best move possible
     public bool CheckCollision(Vector2Int pos)
     {
@@ -225,6 +231,9 @@ public class Board : MonoBehaviour
         
         
         //Clear line full
+        if (linesClear.Count == 4) score += 600;
+        else if (linesClear.Count > 0) score += 200;
+        
         foreach (int j in linesClear)
         {
             for (int i = 0; i < Width; ++i)
@@ -321,6 +330,37 @@ public class Board : MonoBehaviour
     public Vector2Int GetCurrentPiecePos() => _piecePos;
 
     //All functions needs to the genetic algorithm to find the best move
+
+    public int GetMinHeight()
+    {
+        int min = Width;
+        for (int i = 0; i < Height; i++)
+        {
+            int h = GetColHeight(i);
+            if (h < min)
+            {
+                min = h;
+            }
+        }
+        
+        return min;
+    }
+
+    public int GetMaxHeight()
+    {
+        int max = 0;
+        for (int i = 0; i < Height; i++)
+        {
+            int h = GetColHeight(i);
+            if (h > max)
+            {
+                max = h;
+            }
+        }
+        
+        return max;
+    }
+    
     public List<int> ClearLines()
     {
         List<int> linesClear = new();

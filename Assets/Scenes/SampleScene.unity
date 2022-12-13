@@ -515,7 +515,7 @@ MonoBehaviour:
   mutationRate: 0.055
   bestAgentSelection: 9
   worstAgentSelection: 3
-  numberToCrossover: 0
+  numberToCrossover: 5
   currentGeneration: 0
   currentGenome: 0
 --- !u!1 &1731569091

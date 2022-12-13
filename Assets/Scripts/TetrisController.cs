@@ -22,6 +22,8 @@ public class TetrisController : MonoBehaviour
 
     public int LAYERS = 1;
     public int NEURONS = 3;
+
+    private Board boardCopy;
     
     void Start()
     {
@@ -49,7 +51,6 @@ public class TetrisController : MonoBehaviour
 
         if (board.IsGameOver())
         {
-            Debug.Log("IS Game OVER");
             Death();
         }
     }
@@ -71,9 +72,9 @@ public class TetrisController : MonoBehaviour
         board.Reset();
     }
     
-    public float moveScore(int terrainHeight, int coutHoles, int clearLines)
+    public float moveScore(int terrainHeight, int coutHoles, int clearLines, int minHeight, int maxHeight)
     {
-        return _network.RunNetwork(terrainHeight, coutHoles, clearLines);
+        return _network.RunNetwork(terrainHeight, coutHoles, clearLines, minHeight, maxHeight);
     }
     
     private List<int> FindBestMove()
@@ -82,7 +83,10 @@ public class TetrisController : MonoBehaviour
         List<float> moveScores = new();
 
         //Copy the board to make all temporary move to calculate the score of the move
-        Board boardCopy = board.Copy();
+        //Debug.Log(boardCopy.gameObject);
+        if(boardCopy)
+            DestroyImmediate(boardCopy.gameObject);
+        boardCopy = board.Copy();
         
         // Test all differrent combinaison of rotation and postion of the tetromino
         for (int x_add = 5; x_add >= -5; x_add--)
@@ -111,13 +115,20 @@ public class TetrisController : MonoBehaviour
                         boardCopy.Move(1);
                     }
                 }
+
+                for (int i = 0; i < 10; i++)
+                {
+                    boardCopy.Move(4);
+                }
                 
                 //Calculate the score of the move
                 var terrainHeight= boardCopy.CalculateTerrainHeight();
                 var countHoles= boardCopy.CountHoles();
                 var clearLines= boardCopy.ClearLines().Count;
-
-                float score = moveScore(terrainHeight, countHoles, clearLines);
+                var minHeight = boardCopy.GetMinHeight();
+                var maxHeight = boardCopy.GetMinHeight();
+                
+                float score = moveScore(terrainHeight, countHoles, clearLines, minHeight, maxHeight);
                 
                 moveScores.Add(score);
                 moves.Add(moveList);
