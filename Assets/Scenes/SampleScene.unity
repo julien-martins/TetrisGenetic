@@ -510,6 +510,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5816638063746674a8b4264ac52a6dea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  controller: {fileID: 1929418609}
   initialPopulation: 85
   mutationRate: 0.055
   bestAgentSelection: 9
@@ -732,6 +733,7 @@ MonoBehaviour:
   tilemap: {fileID: 1731569094}
   pieceTilemap: {fileID: 193621592}
   score: 0
+  canMove: 1
 --- !u!114 &1929418609
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -745,3 +747,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   board: {fileID: 1929418608}
+  LAYERS: 1
+  NEURONS: 3

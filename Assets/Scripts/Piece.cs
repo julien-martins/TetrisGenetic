@@ -21,6 +21,13 @@ public class Piece
 
     private int _rotationIndex;
 
+    public Piece Copy()
+    {
+        Piece piece = new Piece();
+
+        return piece;
+    }
+    
     public Piece()
     {
         Array values = Enum.GetValues(typeof(TetroType));

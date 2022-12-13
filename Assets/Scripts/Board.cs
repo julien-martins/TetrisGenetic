@@ -25,6 +25,23 @@ public class Board : MonoBehaviour
     private float _timer = 0.0f;
 
     public bool canMove = true;
+
+    private bool _gameOver = false;
+
+    public Board Copy()
+    {
+        Board board = new Board();
+
+        board._piece = _piece;
+        board._piecePos = _piecePos;
+
+        board.tilemap = tilemap;
+        board.pieceTilemap = pieceTilemap;
+
+        board.tilesBase = tilesBase;
+        
+        return board;
+    }
     
     // Start is called before the first frame update
     void Start()
@@ -54,6 +71,19 @@ public class Board : MonoBehaviour
 
         DrawPiece(_piecePos, _piece);
 
+    }
+
+    public bool IsGameOver()
+    {
+        return _gameOver;
+    }
+    
+    public void Reset()
+    {
+        pieceTilemap.ClearAllTiles();
+        tilemap.ClearAllTiles();
+        ResetPiece();
+        _gameOver = false;
     }
 
     void HandleInput()
@@ -110,8 +140,10 @@ public class Board : MonoBehaviour
                 break;
             case 4:
                 _piecePos.y -= 1;
+                if (CheckCollision(_piece)) _piecePos.y += 1;
                 break;
         }
+        
     }
     
     
@@ -122,11 +154,23 @@ public class Board : MonoBehaviour
             for (int i = 0; i < 4; ++i)
             {
                 if (piece.GetTiles()[i, j] != 1) continue;
-                
+             
                 var newPos = _piecePos + new Vector2Int(i, j);
+                
+                //Test if the piece spawn on block
+                if (tilemap.HasTile(new Vector3Int(newPos.x, newPos.y)))
+                {
+                    _gameOver = true;
+                    return false;
+                }
                 
                 if (newPos.x < 0 || newPos.x > Width-1) return true;
 
+                if (newPos.y >= Height+3) {
+                    _gameOver = true;
+                    return false;
+                }
+                
                 if (newPos.y <= 0 || tilemap.HasTile(new Vector3Int(newPos.x, newPos.y - 1, 0)) )
                 {
                     CopyPieceOnBoard(_piece);
@@ -139,7 +183,8 @@ public class Board : MonoBehaviour
                     
                     return true;
                 }
-                
+
+
             }
         }
         
@@ -270,9 +315,11 @@ public class Board : MonoBehaviour
         tilemap.SetTile(new Vector3Int(coord.x, coord.y, 0), tile);
     }
 
+    public float GetScore() => score;
+    
     public Piece GetCurrentPiece() => _piece;
     public Vector2Int GetCurrentPiecePos() => _piecePos;
-    
+
     //All functions needs to the genetic algorithm to find the best move
     public List<int> ClearLines()
     {

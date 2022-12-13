@@ -6,6 +6,9 @@ using MathNet.Numerics.LinearAlgebra;
 
 public class GeneticAlgorithm : MonoBehaviour
 {
+    [Header("References")] 
+    public TetrisController controller;
+    
     [Header("Controls")] 
     public int initialPopulation = 85;
     [Range(0.0f, 1.0f)] public float mutationRate = 0.055f;
@@ -47,7 +50,7 @@ public class GeneticAlgorithm : MonoBehaviour
         while (startingIndex < initialPopulation)
         {
             newPopulation[startingIndex] = new NeuralNetwork();
-            //newPopulation[startingIndex].Initialize(controller.LAYERS, controller.NEURONS);
+            newPopulation[startingIndex].Initialize(controller.LAYERS, controller.NEURONS);
             startingIndex++;
         }
     }
@@ -105,8 +108,8 @@ public class GeneticAlgorithm : MonoBehaviour
             NeuralNetwork child1 = new NeuralNetwork();
             NeuralNetwork child2 = new NeuralNetwork();
 
-            //child1.Initialize(controller.LAYERS, controller.NEURONS);
-            //child2.Initialize(controller.LAYERS, controller.NEURONS);
+            child1.Initialize(controller.LAYERS, controller.NEURONS);
+            child2.Initialize(controller.LAYERS, controller.NEURONS);
 
             child1.fitness = 0;
             child2.fitness = 0;
@@ -183,7 +186,7 @@ public class GeneticAlgorithm : MonoBehaviour
 
         for (int i = 0; i < bestAgentSelection; i++)
         {
-            //newPopulation[naturallySelected] = population[i].InitializeCopy(controller.LAYERS, controller.NEURONS);
+            newPopulation[naturallySelected] = population[i].InitializeCopy(controller.LAYERS, controller.NEURONS);
             newPopulation[naturallySelected].fitness = 0;
             naturallySelected++;
             

@@ -12,7 +12,7 @@ public class NeuralNetwork : MonoBehaviour
     
     public List<Matrix<float>> hiddenLayers = new List<Matrix<float>>();
 
-    public Matrix<float> outputLayer = Matrix<float>.Build.Dense(1, 2);
+    public Matrix<float> outputLayer = Matrix<float>.Build.Dense(1, 1);
 
     public List<Matrix<float>> weights = new List<Matrix<float>>();
 
@@ -48,7 +48,7 @@ public class NeuralNetwork : MonoBehaviour
 
         }
 
-        Matrix<float> OutputWeight = Matrix<float>.Build.Dense(hiddenLayerCount, 2);
+        Matrix<float> OutputWeight = Matrix<float>.Build.Dense(hiddenNeuronCount, 1);
         weights.Add(OutputWeight);
         biases.Add(Random.Range(-1f, 1f));
 
@@ -112,7 +112,7 @@ public class NeuralNetwork : MonoBehaviour
         }
     }
 
-    public (float, float) RunNetwork(float a, float b, float c)
+    public float RunNetwork(float a, float b, float c)
     {
         inputLayer[0, 0] = a;
         inputLayer[0, 1] = b;
@@ -128,9 +128,9 @@ public class NeuralNetwork : MonoBehaviour
             hiddenLayers[i] = ((hiddenLayers[i - 1] * weights[i]) + biases[i]).PointwiseTanh();
         }
         
-        outputLayer = ((hiddenLayers[hiddenLayers.Count-1] * weights[weights.Count-1]) + biases[biases.Count-1]).PointwiseTanh();
+        outputLayer = ((hiddenLayers[^1] * weights[^1]) + biases[^1]).PointwiseTanh();
         
-        return (outputLayer[0, 0], outputLayer[0, 1]);
+        return Sigmoid(outputLayer[0, 0]);
     }
 
     private float Sigmoid(float s)
