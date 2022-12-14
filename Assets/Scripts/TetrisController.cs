@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -21,9 +22,13 @@ public class TetrisController : MonoBehaviour
     private List<int> _moves = new ();
 
     public int LAYERS = 1;
-    public int NEURONS = 3;
+    public int NEURONS = 4;
 
     private Board boardCopy;
+    
+    [Header("UI")]
+    public TextMeshProUGUI scoreNumber;
+    public TextMeshProUGUI hightScoreNumber;
     
     void Start()
     {
@@ -33,6 +38,9 @@ public class TetrisController : MonoBehaviour
     
     void Update()
     {
+        scoreNumber.text = board.GetScore().ToString();
+        hightScoreNumber.text = board.GetHightScore().ToString();
+        
         if (board.canMove)
         {
             _moves = FindBestMove();
@@ -116,17 +124,21 @@ public class TetrisController : MonoBehaviour
                     }
                 }
 
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < 20; i++)
                 {
                     boardCopy.Move(4);
                 }
                 
                 //Calculate the score of the move
+                var minHeight = boardCopy.GetMinHeight();
+                var maxHeight = boardCopy.GetMaxHeight();
+                var clearLines= boardCopy.ClearLines().Count;
+                boardCopy.TestLineClearing();
                 var terrainHeight= boardCopy.CalculateTerrainHeight();
                 var countHoles= boardCopy.CountHoles();
-                var clearLines= boardCopy.ClearLines().Count;
-                var minHeight = boardCopy.GetMinHeight();
-                var maxHeight = boardCopy.GetMinHeight();
+                
+                Debug.Log("HOLES: " + countHoles);
+                Debug.Log("CLEAR LINE: " + clearLines);
                 
                 float score = moveScore(terrainHeight, countHoles, clearLines, minHeight, maxHeight);
                 

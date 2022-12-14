@@ -19,6 +19,7 @@ public class Board : MonoBehaviour
     private Vector2Int _piecePos;
     private Piece _piece;
 
+    private float _hightScore = 0.0f;
     public float score = 0.0f;
     
     private const float Delay = 0.25f;
@@ -58,6 +59,8 @@ public class Board : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        
+        
         _prevPos = _piecePos;
         
         _timer += Time.deltaTime;
@@ -88,6 +91,11 @@ public class Board : MonoBehaviour
         tilemap.ClearAllTiles();
         ResetPiece();
         _gameOver = false;
+        
+        if (score > _hightScore)
+            _hightScore = score;
+
+        score = 0;
     }
 
     void HandleInput()
@@ -178,6 +186,7 @@ public class Board : MonoBehaviour
                 if (newPos.y <= 0 || tilemap.HasTile(new Vector3Int(newPos.x, newPos.y - 1, 0)) )
                 {
                     CopyPieceOnBoard(_piece);
+                    score += 20;
                     
                     ClearPiece(_prevPos, piece);
                     ClearPiece(_piecePos, piece);
@@ -222,17 +231,38 @@ public class Board : MonoBehaviour
         return false;
     }
     
-    void TestLineClearing()
+    public void TestLineClearing()
     {
         List<int> linesClear = new();
         int max_j = 0;
         int min_j = 40;
+        int nbLineFull = 0;
         
-        
+        for (int j = 0; j < Height; ++j)
+        {
+            bool fullLine = true;
+            for (int i = 0; i < Width; ++i)
+            {
+                if (!tilemap.HasTile(new Vector3Int(i, j)))
+                {
+                    fullLine = false;
+                    break;
+                }
+            }
+
+            if (fullLine)
+            {
+                nbLineFull++;
+                if (j > max_j) max_j = j;
+                if (j < min_j) min_j = j;
+                linesClear.Add(j);  
+            }
+            
+        }
         
         //Clear line full
         if (linesClear.Count == 4) score += 600;
-        else if (linesClear.Count > 0) score += 200;
+        else if (linesClear.Count > 0) score += linesClear.Count * 100;
         
         foreach (int j in linesClear)
         {
@@ -271,7 +301,7 @@ public class Board : MonoBehaviour
                 if (tiles[i, j] != 1) continue;
                 
                 var newCoord = _piecePos + new Vector2Int(i, j);
-                DrawTileOnBoard(newCoord, tilesBase[0]);
+                DrawTileOnBoard(newCoord, tilesBase[_piece.GetType()]);
             }
         }
     }
@@ -313,7 +343,7 @@ public class Board : MonoBehaviour
                 if (tiles[i, j] != 1) continue;
                 
                 var newCoord = coord + new Vector2Int(i, j);
-                pieceTilemap.SetTile(new Vector3Int(newCoord.x, newCoord.y), tilesBase[0]);
+                pieceTilemap.SetTile(new Vector3Int(newCoord.x, newCoord.y), tilesBase[_piece.GetType()]);
             }
         }
         
@@ -325,6 +355,7 @@ public class Board : MonoBehaviour
     }
 
     public float GetScore() => score;
+    public float GetHightScore() => _hightScore;
     
     public Piece GetCurrentPiece() => _piece;
     public Vector2Int GetCurrentPiecePos() => _piecePos;
@@ -360,13 +391,11 @@ public class Board : MonoBehaviour
         
         return max;
     }
-    
+
     public List<int> ClearLines()
     {
         List<int> linesClear = new();
         int nbLineFull = 0;
-        int max_j = 0;
-        int min_j = 40;
         
         for (int j = 0; j < Height; ++j)
         {
@@ -383,8 +412,6 @@ public class Board : MonoBehaviour
             if (fullLine)
             {
                 nbLineFull++;
-                if (j > max_j) max_j = j;
-                if (j < min_j) min_j = j;
                 linesClear.Add(j);  
             }
             

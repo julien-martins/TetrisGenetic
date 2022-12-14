@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using MathNet.Numerics.LinearAlgebra;
+using TMPro;
+using UnityEngine.UI;
 
 public class GeneticAlgorithm : MonoBehaviour
 {
@@ -22,6 +24,12 @@ public class GeneticAlgorithm : MonoBehaviour
     private int naturallySelected;
     private NeuralNetwork[] population;
 
+    [Header("UI")] 
+    public TextMeshProUGUI generationNumber;
+    public TextMeshProUGUI populationNumber;
+    public TextMeshProUGUI mutationNumber;
+    public TextMeshProUGUI timeScaleNumber;
+
     [Header("Public View")] 
     public int currentGeneration;
     public int currentGenome = 0;
@@ -29,6 +37,8 @@ public class GeneticAlgorithm : MonoBehaviour
     void Start()
     {
         CreatePopulation();
+
+        mutationNumber.text = mutationRate * 100 + "%";
     }
 
     void CreatePopulation()
@@ -67,6 +77,9 @@ public class GeneticAlgorithm : MonoBehaviour
         {
             Repopulate();
         }
+
+        generationNumber.text = currentGeneration.ToString();
+        populationNumber.text = currentGenome.ToString();
     }
 
     void Repopulate()
@@ -227,6 +240,12 @@ public class GeneticAlgorithm : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void ChangeTimeScale(float value)
+    {
+        timeScaleNumber.text = value.ToString();
+        Time.timeScale = value;
     }
     
 }

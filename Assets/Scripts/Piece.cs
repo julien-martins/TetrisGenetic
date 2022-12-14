@@ -63,5 +63,6 @@ public class Piece
     }
     
     public int[,] GetTiles() => tiles;
+    public int GetType() => (int)type;
 
 }
