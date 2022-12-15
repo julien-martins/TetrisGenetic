@@ -135,9 +135,16 @@ public class NeuralNetwork : MonoBehaviour
         return Sigmoid(outputLayer[0, 0]);
     }
 
+    //Return a value between 0 and 1
     private float Sigmoid(float s)
     {
         return (1 / (1 + Mathf.Exp(-s)));
+    }
+    
+    //Return a value between -1 and 1
+    private float Tanh(float s)
+    {
+        return ((Mathf.Exp(s) - Mathf.Exp(-s)) / (Mathf.Exp(s) + Mathf.Exp(-s)));
     }
     
 }

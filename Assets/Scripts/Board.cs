@@ -28,21 +28,21 @@ public class Board : MonoBehaviour
     public bool canMove = true;
 
     private bool _gameOver = false;
+    public bool isCopy = false;
 
     public Board Copy()
     {
-        Board board = new Board();
-
-        board._piece = _piece;
+        Board board = Instantiate(this);
+        
+        //Move the copyBoard next to the real booard to debug
+        //board.transform.position += new Vector3(10, 0, 0); 
+        
+        board._piece = _piece.Copy();
         board._piecePos = _piecePos;
-
-        board.tilemap = GameObject.Instantiate(tilemap);
-        board.tilemap.transform.parent = transform;
+        board.isCopy = true;
+        
         board.tilemap.gameObject.GetComponent<TilemapRenderer>().enabled = false;
-        board.pieceTilemap = GameObject.Instantiate(pieceTilemap);;
-        board.pieceTilemap.transform.parent = transform;
         board.pieceTilemap.gameObject.GetComponent<TilemapRenderer>().enabled = false;
-
         board.tilesBase = tilesBase;
         
         return board;
@@ -51,15 +51,19 @@ public class Board : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        _piece = new Piece();
-
         _piecePos = new Vector2Int(5, 16);
+        
+        //Debug.Log("TEST ISROWFULL");
+        //Debug.Log(TestIsRowFull());
+        
+        //Debug.Log("Count hole");
+        //Debug.Log(TestCountHole());
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        //return;
         
         _prevPos = _piecePos;
         
@@ -72,8 +76,10 @@ public class Board : MonoBehaviour
         
         pieceTilemap.ClearAllTiles();
 
-        CheckCollision(_piece);
-        
+        if (!isCopy)
+        {
+            CheckCollision(_piece);
+        }
         HandleInput();
 
         DrawPiece(_piecePos, _piece);
@@ -130,36 +136,68 @@ public class Board : MonoBehaviour
     }
 
     //Use by the Tetris controller
-    public void Move(int dir)
+    public bool Move(int dir)
     {
         switch (dir)
         {
             case 0:
                 _piecePos.x += 1;
-                if (CheckCollision(_piece, false)) _piecePos.x -= 1;
+                if(CheckCollisionPiece(_piece)){
+                    _piecePos.x -= 1;
+                    return true;
+                }
                 break;
             case 1:
                 _piecePos.x -= 1;
-                if (CheckCollision(_piece, false)) _piecePos.x += 1;
+                if(CheckCollisionPiece(_piece)){
+                    _piecePos.x += 1;
+                    return true;
+                }
                 break;
             case 2:
                 _piece.Rotate();
-                if(CheckCollision(_piece, false)) _piece.Rotate(false);
+                
+                if(CheckCollisionPiece(_piece)){
+                    _piece.Rotate(false);
+                    return true;
+                }
+
                 break;
             case 3:
                 _piece.Rotate(false);
-                if(CheckCollision(_piece, false)) _piece.Rotate();
                 break;
             case 4:
                 _piecePos.y -= 1;
-                if (CheckCollision(_piece, false)) _piecePos.y += 1;
+
+                if (CheckCollisionIA(_piece))
+                {
+                    _piecePos.y += 1;
+                    return true;
+                }
+
                 break;
         }
         
+        return false;
     }
-    
-    
-    public bool CheckCollision(Piece piece, bool testClearing = true)
+
+    public bool CheckCollisionPiece(Piece piece)
+    {
+        for (int j = 0; j < 4; ++j)
+        {
+            for (int i = 0; i < 4; ++i)
+            {
+                if (piece.GetTiles()[i, j] != 1) continue;
+
+                var newPos = _piecePos + new Vector2Int(i, j);
+
+                if (newPos.x < 0 || newPos.x > Width - 1) return true;
+            }
+        }
+
+        return false;
+    }
+    public bool CheckCollision(Piece piece)
     {
         for (int j = 0; j < 4; ++j)
         {
@@ -190,11 +228,10 @@ public class Board : MonoBehaviour
                     
                     ClearPiece(_prevPos, piece);
                     ClearPiece(_piecePos, piece);
+
                     ResetPiece();
-                    
-                    if(testClearing)
-                        TestLineClearing();
-                    
+                    TestLineClearing();
+
                     return true;
                 }
 
@@ -206,28 +243,37 @@ public class Board : MonoBehaviour
         return false;
     }
 
-    
-    //Use by the genetic algorithm to find the best move possible
-    public bool CheckCollision(Vector2Int pos)
+    public bool CheckCollisionIA(Piece piece)
     {
         for (int j = 0; j < 4; ++j)
         {
             for (int i = 0; i < 4; ++i)
             {
-                if (_piece.GetTiles()[i, j] != 1) continue;
+                if (piece.GetTiles()[i, j] != 1) continue;
+                var newPos = _piecePos + new Vector2Int(i, j);
                 
-                var newPos = pos + new Vector2Int(i, j);
-                
+                //if piece spawn on block
+                if (tilemap.HasTile(new Vector3Int(newPos.x, newPos.y))) return true;
+                //if piece is out of the terrain
                 if (newPos.x < 0 || newPos.x > Width-1) return true;
-
-                if (newPos.y <= 0 || tilemap.HasTile(new Vector3Int(newPos.x, newPos.y - 1, 0)) )
+                
+                //If the piece out of the terrain
+                if (newPos.y >= Height + 3) return true;
+                
+                //IF the piece touch the botton of the grid or an another piece
+                if (newPos.y <= 0 || tilemap.HasTile(new Vector3Int(newPos.x, newPos.y - 1, 0)))
                 {
+                    CopyPieceOnBoard(_piece);
+                    
+                    ClearPiece(_prevPos, piece);
+                    //ClearPiece(_piecePos, piece);
+
                     return true;
                 }
-                
+
             }
         }
-        
+
         return false;
     }
     
@@ -351,7 +397,7 @@ public class Board : MonoBehaviour
 
     void DrawTileOnBoard(Vector2Int coord, TileBase tile)
     {
-        tilemap.SetTile(new Vector3Int(coord.x, coord.y, 0), tile);
+        tilemap.SetTile(new Vector3Int(coord.x, coord.y), tile);
     }
 
     public float GetScore() => score;
@@ -361,7 +407,6 @@ public class Board : MonoBehaviour
     public Vector2Int GetCurrentPiecePos() => _piecePos;
 
     //All functions needs to the genetic algorithm to find the best move
-
     public int GetMinHeight()
     {
         int min = Width;
@@ -395,7 +440,6 @@ public class Board : MonoBehaviour
     public List<int> ClearLines()
     {
         List<int> linesClear = new();
-        int nbLineFull = 0;
         
         for (int j = 0; j < Height; ++j)
         {
@@ -411,8 +455,7 @@ public class Board : MonoBehaviour
 
             if (fullLine)
             {
-                nbLineFull++;
-                linesClear.Add(j);  
+                linesClear.Add(j);
             }
             
         }
@@ -422,27 +465,45 @@ public class Board : MonoBehaviour
     public int CountHoles()
     {
         int holes = 0;
-        for(int i = 0; i < Height; i++) {
-            bool start_counting = false;
-            for(int j = 0; j < Width; j++) {
-                if(!tilemap.HasTile(new Vector3Int(i, j)) && !start_counting) {
-                    start_counting = true;
-                } else if(tilemap.HasTile(new Vector3Int(i, j)) && start_counting) {
-                    holes++;
-                }
+
+        for (int x = 0; x < Width; x++)
+        {
+            var hitBlock = false;
+            for (int y = Height-1; y >= 0; y--)
+            {
+                if (tilemap.HasTile(new Vector3Int(x, y))) hitBlock = true;
+
+                if (hitBlock && !tilemap.HasTile(new Vector3Int(x, y))) holes++;
             }
         }
+        
         return holes;
     }
 
+    public bool IsRowFull(int y)
+    {
+        var full = true;
+
+        for (int i = 0; i < Width; i++)
+        {
+            if (!tilemap.HasTile(new Vector3Int(i, y)))
+                full = false;
+        }
+        
+        return full;
+    }
+    
     public int GetColHeight(int c)
     {
         int h = 0;
 
-        for (int i = 0; i < Width; ++i)
+        for (int j = 0; j < Height; ++j)
         {
-            if (tilemap.HasTile(new Vector3Int(i, c))) h++;
-            else break;
+            var full = IsRowFull(j);
+            if (tilemap.HasTile(new Vector3Int(c, j)) && h == 0 && !full)
+                h = Height - j;
+
+            if (h > 0 && full) h--;
         }
         
         return h;
@@ -451,8 +512,9 @@ public class Board : MonoBehaviour
     {
         int bumpiness = 0;
         int prevHeight = -1;
-        for (int c = 0 ; c < Height ; c++) {
-            int h = GetColHeight(c);
+        for(int i = 0; i < Width; i++)
+        {
+            int h = GetColHeight(i);
             if (prevHeight != -1) {
                 bumpiness += Math.Abs(h - prevHeight);
             }
@@ -462,4 +524,25 @@ public class Board : MonoBehaviour
       
         return bumpiness;
     }
+    
+    //Test Function
+    public bool TestIsRowFull()
+    {
+        for(int i = 0; i < Width-1; i++)
+            tilemap.SetTile(new Vector3Int(i, 0), tilesBase[0]);
+        
+        return IsRowFull(0);
+    }
+
+    public int TestCountHole()
+    {
+        for(int i = 0; i < Width-2; i++)
+            tilemap.SetTile(new Vector3Int(i, 0), tilesBase[0]);
+        tilemap.SetTile(new Vector3Int(Width-2, 1), tilesBase[0]);
+        tilemap.SetTile(new Vector3Int(Width-2, 3), tilesBase[0]);
+        tilemap.SetTile(new Vector3Int(Width-1, 3), tilesBase[0]);
+        
+        return CountHoles();
+    }
+
 }

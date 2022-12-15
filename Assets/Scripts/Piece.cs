@@ -24,7 +24,9 @@ public class Piece
     public Piece Copy()
     {
         Piece piece = new Piece();
-
+        piece.tiles = tiles;
+        piece.type = type;
+        piece._rotationIndex = _rotationIndex;
         return piece;
     }
     
