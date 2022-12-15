@@ -12,8 +12,8 @@ public class Board : MonoBehaviour
     
     [SerializeField] private TileBase[] tilesBase;
 
-    [SerializeField] private Tilemap tilemap;
-    [SerializeField] private Tilemap pieceTilemap;
+    public Tilemap tilemap;
+    public Tilemap pieceTilemap;
 
     private Vector2Int _prevPos;
     private Vector2Int _piecePos;
@@ -58,6 +58,9 @@ public class Board : MonoBehaviour
         
         //Debug.Log("Count hole");
         //Debug.Log(TestCountHole());
+        
+        //Debug.Log("GET COL HEIGHT");
+        //Debug.Log(TestGetColHeight());
     }
 
     // Update is called once per frame
@@ -67,6 +70,7 @@ public class Board : MonoBehaviour
         
         _prevPos = _piecePos;
         
+        
         _timer += Time.deltaTime;
         if (_timer >= Delay)
         {
@@ -74,13 +78,16 @@ public class Board : MonoBehaviour
             _timer = 0;
         }
         
+        
         pieceTilemap.ClearAllTiles();
 
+        
         if (!isCopy)
         {
             CheckCollision(_piece);
-        }
-        HandleInput();
+            HandleInput();
+        } 
+        
 
         DrawPiece(_piecePos, _piece);
 
@@ -138,6 +145,8 @@ public class Board : MonoBehaviour
     //Use by the Tetris controller
     public bool Move(int dir)
     {
+        _prevPos = _piecePos;
+        
         switch (dir)
         {
             case 0:
@@ -224,7 +233,7 @@ public class Board : MonoBehaviour
                 if (newPos.y <= 0 || tilemap.HasTile(new Vector3Int(newPos.x, newPos.y - 1, 0)) )
                 {
                     CopyPieceOnBoard(_piece);
-                    score += 20;
+                    //score += 20;
                     
                     ClearPiece(_prevPos, piece);
                     ClearPiece(_piecePos, piece);
@@ -266,8 +275,8 @@ public class Board : MonoBehaviour
                     CopyPieceOnBoard(_piece);
                     
                     ClearPiece(_prevPos, piece);
-                    //ClearPiece(_piecePos, piece);
-
+                    ClearPiece(_piecePos, piece);
+                    
                     return true;
                 }
 
@@ -409,8 +418,8 @@ public class Board : MonoBehaviour
     //All functions needs to the genetic algorithm to find the best move
     public int GetMinHeight()
     {
-        int min = Width;
-        for (int i = 0; i < Height; i++)
+        int min = Height;
+        for (int i = 0; i < Width; i++)
         {
             int h = GetColHeight(i);
             if (h < min)
@@ -425,7 +434,7 @@ public class Board : MonoBehaviour
     public int GetMaxHeight()
     {
         int max = 0;
-        for (int i = 0; i < Height; i++)
+        for (int i = 0; i < Width; i++)
         {
             int h = GetColHeight(i);
             if (h > max)
@@ -497,11 +506,11 @@ public class Board : MonoBehaviour
     {
         int h = 0;
 
-        for (int j = 0; j < Height; ++j)
+        for (int j = Height; j > 0; j--)
         {
             var full = IsRowFull(j);
             if (tilemap.HasTile(new Vector3Int(c, j)) && h == 0 && !full)
-                h = Height - j;
+                h = j;
 
             if (h > 0 && full) h--;
         }
@@ -511,14 +520,12 @@ public class Board : MonoBehaviour
     public int CalculateTerrainHeight()
     {
         int bumpiness = 0;
-        int prevHeight = -1;
-        for(int i = 0; i < Width; i++)
+        int prevHeight = GetColHeight(0);
+        for(int i = 1; i < Width; i++)
         {
             int h = GetColHeight(i);
-            if (prevHeight != -1) {
-                bumpiness += Math.Abs(h - prevHeight);
-            }
-      
+            bumpiness += Math.Abs(h - prevHeight);
+            
             prevHeight = h;
         }
       
@@ -543,6 +550,14 @@ public class Board : MonoBehaviour
         tilemap.SetTile(new Vector3Int(Width-1, 3), tilesBase[0]);
         
         return CountHoles();
+    }
+
+    public int TestGetColHeight()
+    {
+        for(int j = 0; j < 10; j++)
+            tilemap.SetTile(new Vector3Int(0, j), tilesBase[0]);
+
+        return GetColHeight(0);
     }
 
 }

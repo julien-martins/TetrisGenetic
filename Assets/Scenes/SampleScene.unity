@@ -208,7 +208,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 835286301}
   m_Direction: 2
   m_MinValue: 0
-  m_MaxValue: 1000
+  m_MaxValue: 100
   m_WholeNumbers: 1
   m_Value: 1
   m_OnValueChanged:
@@ -1749,10 +1749,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   controller: {fileID: 990120980}
-  initialPopulation: 200
-  mutationRate: 0.055
-  bestAgentSelection: 10
-  worstAgentSelection: 5
+  initialPopulation: 150
+  mutationRate: 0.05
+  bestAgentSelection: 15
+  worstAgentSelection: 2
   numberToCrossover: 100
   generationNumber: {fileID: 1471954060}
   populationNumber: {fileID: 999997023}

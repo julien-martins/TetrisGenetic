@@ -132,7 +132,7 @@ public class NeuralNetwork : MonoBehaviour
         
         outputLayer = ((hiddenLayers[^1] * weights[^1]) + biases[^1]).PointwiseTanh();
         
-        return Sigmoid(outputLayer[0, 0]);
+        return Tanh(outputLayer[0, 0]);
     }
 
     //Return a value between 0 and 1

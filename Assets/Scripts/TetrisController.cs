@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 using Random = UnityEngine.Random;
 
 public class TetrisController : MonoBehaviour
@@ -20,7 +21,7 @@ public class TetrisController : MonoBehaviour
     private int _indexMove = 0;
     private List<int> _moves = new ();
 
-    public int LAYERS = 1;
+    public int LAYERS = 2;
     public int NEURONS = 4;
 
     private Board boardCopy;
@@ -70,6 +71,7 @@ public class TetrisController : MonoBehaviour
 
     private void Death()
     {
+        Debug.Log(board.GetScore());
         GameObject.FindObjectOfType<GeneticAlgorithm>().Death(board.GetScore(), _network);
         Reset();
     }
@@ -94,7 +96,7 @@ public class TetrisController : MonoBehaviour
 
         // Test all differrent combinaison of rotation and postion of the tetromino
         int it_combin = 1;
-        for (int x_add = 5; x_add >= -5; x_add--)
+        for (int x_add = 6; x_add >= -6; x_add--)
         {
             for (int rotate = 0; rotate <= 3; rotate++)
             {
@@ -130,13 +132,13 @@ public class TetrisController : MonoBehaviour
                 }
 
                 while (!boardCopy.Move(4))
-                { }
+                {}
                 
                 //Calculate the score of the move
                 var minHeight = boardCopy.GetMinHeight();
                 var maxHeight = boardCopy.GetMaxHeight();
                 var clearLines= boardCopy.ClearLines().Count;
-                boardCopy.TestLineClearing();
+                //boardCopy.TestLineClearing();
                 var terrainHeight= boardCopy.CalculateTerrainHeight();
                 var countHoles= boardCopy.CountHoles();
                 
@@ -147,7 +149,7 @@ public class TetrisController : MonoBehaviour
                 //Debug.Log("HOLES: " + countHoles);
                 
                 float score = moveScore(terrainHeight, countHoles, clearLines, minHeight, maxHeight);
-                //float score = clearLines * 10 - countHoles * 2 - terrainHeight;
+                //float score = clearLines * 4 - countHoles * 2 - terrainHeight - minHeight - maxHeight;
                 
                 //Debug.Log("SCORE ===> " + score);
 
@@ -183,5 +185,10 @@ public class TetrisController : MonoBehaviour
     {
         return board.score;
     }
-    
+
+    IEnumerator DelayAction(float delayTime)
+    {
+        yield return new WaitForSeconds(delayTime);
+    }
+
 }

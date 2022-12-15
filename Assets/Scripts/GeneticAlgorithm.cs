@@ -203,7 +203,8 @@ public class GeneticAlgorithm : MonoBehaviour
             newPopulation[naturallySelected].fitness = 0;
             naturallySelected++;
             
-            int f = Mathf.RoundToInt(population[i].fitness * 10);
+            //int f = Mathf.RoundToInt(population[i].fitness * 10);
+            int f = Mathf.RoundToInt(population[i].fitness );
             for (int c = 0; c < f; c++)
             {
                 genePool.Add(i);
@@ -215,7 +216,8 @@ public class GeneticAlgorithm : MonoBehaviour
             int last = population.Length - 1;
             last -= i;
             
-            int f = Mathf.RoundToInt(population[last].fitness * 10);
+            //int f = Mathf.RoundToInt(population[last].fitness * 10);
+            int f = Mathf.RoundToInt(population[last].fitness);
             for (int c = 0; c < f; c++)
             {
                 genePool.Add(last);
