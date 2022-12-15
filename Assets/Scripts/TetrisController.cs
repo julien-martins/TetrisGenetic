@@ -140,16 +140,16 @@ public class TetrisController : MonoBehaviour
                 var terrainHeight= boardCopy.CalculateTerrainHeight();
                 var countHoles= boardCopy.CountHoles();
                 
-                Debug.Log("COMBINAISON " + it_combin);
+                //Debug.Log("COMBINAISON " + it_combin);
                 
-                Debug.Log("BUMPINESS: " + terrainHeight);
-                Debug.Log("CLEAR LINE: " + clearLines);
-                Debug.Log("HOLES: " + countHoles);
+                //Debug.Log("BUMPINESS: " + terrainHeight);
+                //Debug.Log("CLEAR LINE: " + clearLines);
+                //Debug.Log("HOLES: " + countHoles);
                 
                 float score = moveScore(terrainHeight, countHoles, clearLines, minHeight, maxHeight);
                 //float score = clearLines * 10 - countHoles * 2 - terrainHeight;
                 
-                Debug.Log("SCORE ===> " + score);
+                //Debug.Log("SCORE ===> " + score);
 
                 for (int i = 0; i < moveList.Count; ++i)
                 {
@@ -172,8 +172,8 @@ public class TetrisController : MonoBehaviour
             if (moveScores[i] > moveScores[max_index]) max_index = i;
         }
         
-        Debug.Log("MAX INDEX: " + max_index);
-        Debug.Log("MIN INDEX: " + min_index);
+        //Debug.Log("MAX INDEX: " + max_index); 
+        //Debug.Log("MIN INDEX: " + min_index);
         
         return moves[max_index];
     }

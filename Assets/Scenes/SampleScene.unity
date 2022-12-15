@@ -1751,9 +1751,9 @@ MonoBehaviour:
   controller: {fileID: 990120980}
   initialPopulation: 200
   mutationRate: 0.055
-  bestAgentSelection: 1
+  bestAgentSelection: 10
   worstAgentSelection: 5
-  numberToCrossover: 50
+  numberToCrossover: 100
   generationNumber: {fileID: 1471954060}
   populationNumber: {fileID: 999997023}
   mutationNumber: {fileID: 1056872774}
