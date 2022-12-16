@@ -71,7 +71,7 @@ public class TetrisController : MonoBehaviour
 
     private void Death()
     {
-        Debug.Log(board.GetScore());
+        //Debug.Log(board.GetScore());
         GameObject.FindObjectOfType<GeneticAlgorithm>().Death(board.GetScore(), _network);
         Reset();
     }
