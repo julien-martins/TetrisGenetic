@@ -1749,11 +1749,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   controller: {fileID: 990120980}
-  initialPopulation: 150
+  initialPopulation: 100
   mutationRate: 0.05
-  bestAgentSelection: 15
+  bestAgentSelection: 5
   worstAgentSelection: 2
-  numberToCrossover: 100
+  numberToCrossover: 60
   generationNumber: {fileID: 1471954060}
   populationNumber: {fileID: 999997023}
   mutationNumber: {fileID: 1056872774}

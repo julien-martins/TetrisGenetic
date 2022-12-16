@@ -8,7 +8,7 @@ using MathNet.Numerics.LinearAlgebra.Double;
 public class NeuralNetwork : MonoBehaviour
 {
 
-    public Matrix<float> inputLayer = Matrix<float>.Build.Dense(1, 5);
+    public Matrix<float> inputLayer = Matrix<float>.Build.Dense(1, 4);
     
     public List<Matrix<float>> hiddenLayers = new List<Matrix<float>>();
 
@@ -39,7 +39,7 @@ public class NeuralNetwork : MonoBehaviour
             //WEIGHTS
             if (i == 0)
             {
-                Matrix<float> inputToHi = Matrix<float>.Build.Dense(5, hiddenNeuronCount);
+                Matrix<float> inputToHi = Matrix<float>.Build.Dense(4, hiddenNeuronCount);
                 weights.Add(inputToHi);
             }
 
@@ -112,13 +112,12 @@ public class NeuralNetwork : MonoBehaviour
         }
     }
 
-    public float RunNetwork(float a, float b, float c, float d, float e)
+    public float RunNetwork(float a, float b, float c, float d)
     {
         inputLayer[0, 0] = a;
         inputLayer[0, 1] = b;
         inputLayer[0, 2] = c;
         inputLayer[0, 3] = d;
-        inputLayer[0, 4] = e;
 
         //Activation function
         inputLayer = inputLayer.PointwiseTanh();

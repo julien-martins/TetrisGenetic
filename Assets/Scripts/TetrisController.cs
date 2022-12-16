@@ -21,8 +21,8 @@ public class TetrisController : MonoBehaviour
     private int _indexMove = 0;
     private List<int> _moves = new ();
 
-    public int LAYERS = 2;
-    public int NEURONS = 4;
+    public int LAYERS = 1;
+    public int NEURONS = 3;
 
     private Board boardCopy;
     
@@ -81,9 +81,9 @@ public class TetrisController : MonoBehaviour
         board.Reset();
     }
     
-    public float moveScore(int terrainHeight, int coutHoles, int clearLines, int minHeight, int maxHeight)
+    private float MoveScore(int terrainHeight, int coutHoles, int clearLines, int aggregateHeight)
     {
-        return _network.RunNetwork(terrainHeight, coutHoles, clearLines, minHeight, maxHeight);
+        return _network.RunNetwork(terrainHeight, coutHoles, clearLines, aggregateHeight);
     }
     
     private List<int> FindBestMove()
@@ -91,8 +91,6 @@ public class TetrisController : MonoBehaviour
         List<List<int>> moves = new();
         List<float> moveScores = new();
 
-        //Copy the board to make all temporary move to calculate the score of the move
-        //Debug.Log(boardCopy.gameObject);
 
         // Test all differrent combinaison of rotation and postion of the tetromino
         int it_combin = 1;
@@ -106,6 +104,7 @@ public class TetrisController : MonoBehaviour
                     DestroyImmediate(boardCopy.gameObject);
                 }
 
+                //Copy the board to make all temporary move to calculate the score of the move
                 boardCopy = board.Copy();
                 boardCopy.gameObject.name = "Combinaison " + it_combin;
                 
@@ -131,31 +130,34 @@ public class TetrisController : MonoBehaviour
                     }
                 }
 
+                //Get down the piece on the board's copy
                 while (!boardCopy.Move(4))
                 {}
                 
-                //Calculate the score of the move
-                var minHeight = boardCopy.GetMinHeight();
-                var maxHeight = boardCopy.GetMaxHeight();
+                //Get all data need to the neural network
                 var clearLines= boardCopy.ClearLines().Count;
-                //boardCopy.TestLineClearing();
-                var terrainHeight= boardCopy.CalculateTerrainHeight();
+                //Clear all lines on the board's copy
+                boardCopy.TestLineClearing();
+                
+                var aggregateHeight = boardCopy.GetAggregateHeight();
+                var bumpiness= boardCopy.GetBumpiness();
                 var countHoles= boardCopy.CountHoles();
+                
+                var score = MoveScore(bumpiness, countHoles, clearLines, aggregateHeight);
+                
                 
                 //Debug.Log("COMBINAISON " + it_combin);
                 
-                //Debug.Log("BUMPINESS: " + terrainHeight);
+                //Debug.Log("BUMPINESS: " + bumpiness);
                 //Debug.Log("CLEAR LINE: " + clearLines);
                 //Debug.Log("HOLES: " + countHoles);
                 
-                float score = moveScore(terrainHeight, countHoles, clearLines, minHeight, maxHeight);
-                //float score = clearLines * 4 - countHoles * 2 - terrainHeight - minHeight - maxHeight;
-                
                 //Debug.Log("SCORE ===> " + score);
 
-                for (int i = 0; i < moveList.Count; ++i)
+                //Rotate the piece in the other direction to replace it in the original rotation
+                foreach (var move in moveList)
                 {
-                    if (moveList[i] == 2) boardCopy.Move(3);
+                    if (move == 2) boardCopy.Move(3);
                 }
                 
                 moveScores.Add(score);
@@ -166,29 +168,15 @@ public class TetrisController : MonoBehaviour
         }
         
         //Get the move with the maximum score
-        int max_index = 0;
-        int min_index = 0;
+        var maxIndex = 0;
         for (int i = 1; i < moveScores.Count; i++)
         {
-            if (moveScores[i] < moveScores[min_index]) min_index = i;
-            if (moveScores[i] > moveScores[max_index]) max_index = i;
+            if (moveScores[i] > moveScores[maxIndex]) maxIndex = i;
         }
         
         //Debug.Log("MAX INDEX: " + max_index); 
-        //Debug.Log("MIN INDEX: " + min_index);
         
-        return moves[max_index];
-    }
-    
-    //Calculate score on the board
-    private float CalculateFitness()
-    {
-        return board.score;
-    }
-
-    IEnumerator DelayAction(float delayTime)
-    {
-        yield return new WaitForSeconds(delayTime);
+        return moves[maxIndex];
     }
 
 }

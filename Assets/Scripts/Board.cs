@@ -446,6 +446,7 @@ public class Board : MonoBehaviour
         return max;
     }
 
+    //List of all lines that is full.
     public List<int> ClearLines()
     {
         List<int> linesClear = new();
@@ -471,6 +472,8 @@ public class Board : MonoBehaviour
 
         return linesClear;
     }
+    
+    //The number of holes on the board.
     public int CountHoles()
     {
         int holes = 0;
@@ -517,7 +520,9 @@ public class Board : MonoBehaviour
         
         return h;
     }
-    public int CalculateTerrainHeight()
+    
+    // The sum of absolute height difference between the columns.
+    public int GetBumpiness()
     {
         int bumpiness = 0;
         int prevHeight = GetColHeight(0);
@@ -530,6 +535,19 @@ public class Board : MonoBehaviour
         }
       
         return bumpiness;
+    }
+
+    //This calculates a sum of all the column heights.
+    public int GetAggregateHeight()
+    {
+        int aggregateHeight = 0;
+
+        for (int i = 0; i < Width; i++)
+        {
+            aggregateHeight += GetColHeight(i);
+        }
+        
+        return aggregateHeight;
     }
     
     //Test Function
